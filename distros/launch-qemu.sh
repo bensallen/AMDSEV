@@ -18,21 +18,21 @@ USE_VIRTIO="1"
 declare -a QEMU_CMDLINE
 
 usage() {
-	echo "$0 [options]"
-	echo "Available <commands>:"
+  echo "$0 [options]"
+  echo "Available <commands>:"
   echo " -dir          base directory for VM"
-	echo " -hda          hard disk ($HDA_FILE)"
-	echo " -nosev        disable sev support"
-	echo " -mem          guest memory"
-	echo " -smp          number of cpus"
-	echo " -console      display console to use (serial or gxl)"
-	echo " -vnc          VNC port to use"
-	echo " -bios         bios to use (default $UEFI_BIOS_CODE)"
-	echo " -kernel       kernel to use"
-	echo " -initrd       initrd to use"
-	echo " -cdrom        CDROM image"
-	echo " -virtio       use virtio devices"
-	exit 1
+  echo " -hda          hard disk ($HDA_FILE)"
+  echo " -nosev        disable sev support"
+  echo " -mem          guest memory"
+  echo " -smp          number of cpus"
+  echo " -console      display console to use (serial or gxl)"
+  echo " -vnc          VNC port to use"
+  echo " -bios         bios to use (default $UEFI_BIOS_CODE)"
+  echo " -kernel       kernel to use"
+  echo " -initrd       initrd to use"
+  echo " -cdrom        CDROM image"
+  echo " -virtio       use virtio devices"
+  exit 1
 }
 
 add_opts() {
@@ -40,54 +40,54 @@ add_opts() {
 }
 
 run_cmd () {
-	if "$@"; then
-		echo "command $* failed"
-		exit 1
-	fi
+  if "$@"; then
+    echo "command $* failed"
+    exit 1
+  fi
 }
 
 while [[ $1 != "" ]]; do
-	case "$1" in
-    -dir) 		BASEDIR="$(realpath -f -- "${2}")"
-				shift
-				;;
-		-hda) 		HDA_FILE="${2}"
-				shift
-				;;
-		-nosev) 	SEV_GUEST="0"
-				;;
-		-mem)  		GUEST_SIZE_IN_MB=${2}
-				shift
-				;;
-		-console)	CONSOLE=${2}
-				shift
-				;;
-		-smp)		SMP_NCPUS=$2
-				shift
-				;;
-		-vnc)		VNC_PORT=$2
-				shift
-				if [ "${VNC_PORT}" = "" ]; then
-					usage
-				fi
-				;;
-    -bios)		UEFI_BIOS_CODE="$(readlink -f "${2}")"
-				shift
-				;;
-		-initrd)	INITRD_FILE=$2
-				shift
-				;;
-		-kernel)	KERNEL_FILE=$2
-				shift
-				;;
-		-cdrom)		CDROM_FILE=$2
-				shift
-				;;
-		-virtio)  USE_VIRTIO="1"
-				;;
-		*) 		usage;;
-	esac
-	shift
+  case "$1" in
+    -dir)     BASEDIR="$(realpath -f -- "${2}")"
+        shift
+        ;;
+    -hda)     HDA_FILE="${2}"
+        shift
+        ;;
+    -nosev)   SEV_GUEST="0"
+        ;;
+    -mem)     GUEST_SIZE_IN_MB=${2}
+        shift
+        ;;
+    -console) CONSOLE=${2}
+        shift
+        ;;
+    -smp)   SMP_NCPUS=$2
+        shift
+        ;;
+    -vnc)   VNC_PORT=$2
+        shift
+        if [ "${VNC_PORT}" = "" ]; then
+          usage
+        fi
+        ;;
+    -bios)    UEFI_BIOS_CODE="$(readlink -f "${2}")"
+        shift
+        ;;
+    -initrd)  INITRD_FILE=$2
+        shift
+        ;;
+    -kernel)  KERNEL_FILE=$2
+        shift
+        ;;
+    -cdrom)   CDROM_FILE=$2
+        shift
+        ;;
+    -virtio)  USE_VIRTIO="1"
+        ;;
+    *)    usage;;
+  esac
+  shift
 done
 
 # Basic virtual machine property
@@ -120,21 +120,21 @@ fi
 
 # If harddisk file is specified then add the HDD drive
 if [ -n "${HDA_FILE}" ]; then
-	if [ "$USE_VIRTIO" = "1" ]; then
-		if [[ ${HDA_FILE} = *"qcow2" ]]; then
+  if [ "$USE_VIRTIO" = "1" ]; then
+    if [[ ${HDA_FILE} = *"qcow2" ]]; then
       add_opts "-drive" "file=${HDA_FILE},if=none,id=disk0,format=qcow2"
-		else
+    else
       add_opts "-drive" "file=${HDA_FILE},if=none,id=disk0,format=raw"
-		fi
+    fi
     add_opts "-device" "virtio-scsi-pci,id=scsi,disable-legacy=on,iommu_platform=true"
     add_opts "-device" "scsi-hd,drive=disk0"
-	else
-		if [[ ${HDA_FILE} = *"qcow2" ]]; then
+  else
+    if [[ ${HDA_FILE} = *"qcow2" ]]; then
       add_opts "-drive" "file=${HDA_FILE},format=qcow2"
-		else
+    else
       add_opts "-drive" "file=${HDA_FILE},format=raw"
-		fi
-	fi
+    fi
+  fi
 fi
 
 # If this is SEV guest then add the encryption device objects to enable support
